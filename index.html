@@ -1,288 +1,326 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>spg-ai ルーレット</title>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>spg-ai</title>
+
 
   <style>
+
     * {
       box-sizing: border-box;
     }
 
+
     body {
+
       margin: 0;
+
       min-height: 100svh;
+
       background: #eeeeee;
-      font-family: -apple-system, BlinkMacSystemFont,
-                   "Hiragino Sans", "Yu Gothic", sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+
+      color: #222;
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Hiragino Sans",
+        "Yu Gothic",
+        sans-serif;
+
     }
+
 
     .app {
-      width: min(92vw, 420px);
-      text-align: center;
-    }
 
-    .wheel-area {
-      position: relative;
-      width: min(82vw, 340px);
-      height: min(82vw, 340px);
+      width: min(92vw, 500px);
+
       margin: 0 auto;
+
+      padding: 40px 0;
+
     }
 
-    .pointer {
-      position: absolute;
-      z-index: 5;
-      left: 50%;
-      top: -5px;
-      transform: translateX(-50%);
 
-      width: 0;
-      height: 0;
+    h1 {
 
-      border-left: 17px solid transparent;
-      border-right: 17px solid transparent;
-      border-top: 32px solid #e53935;
+      text-align: center;
+
+      font-size: 36px;
+
+      margin: 0;
+
     }
 
-    .wheel {
-      position: relative;
 
-      width: 100%;
-      height: 100%;
+    .subtitle {
 
-      border: 6px solid #222;
-      border-radius: 50%;
+      text-align: center;
 
-      overflow: hidden;
+      color: #777;
 
-      transform: rotate(0deg);
+      margin-top: 8px;
 
-      transition:
-        transform 3s cubic-bezier(.12, .72, .15, 1);
+      margin-bottom: 35px;
 
-      background: #f5d34f;
     }
 
-    .half {
-      position: absolute;
 
-      left: 0;
-      width: 100%;
-      height: 50%;
+    #games {
 
       display: flex;
-      justify-content: center;
-      align-items: center;
 
-      font-size: clamp(54px, 18vw, 82px);
-      font-weight: 800;
+      flex-direction: column;
+
+      gap: 12px;
+
     }
 
-    .one {
-      top: 0;
 
-      background: #f5d34f;
-      color: #222;
-    }
+    .game {
 
-    .two {
-      bottom: 0;
+      display: block;
 
-      background: #5c8fe8;
-      color: white;
-    }
-
-    .hub {
-      position: absolute;
-
-      z-index: 3;
-
-      left: 50%;
-      top: 50%;
-
-      width: 34px;
-      height: 34px;
-
-      transform: translate(-50%, -50%);
-
-      border-radius: 50%;
-
-      background: #222;
-      border: 5px solid white;
-    }
-
-    button {
       width: 100%;
-      height: 60px;
 
-      margin-top: 24px;
+      padding: 20px;
 
-      border: 0;
+      background: white;
+
+      border: 1px solid #ddd;
+
       border-radius: 14px;
 
-      background: #222;
-      color: white;
+      color: #222;
 
-      font-size: 20px;
+      text-decoration: none;
+
+      font-size: 19px;
+
       font-weight: 700;
+
+      box-shadow:
+        0 2px 5px rgba(0,0,0,0.08);
+
     }
 
-    button:active {
+
+    .game:active {
+
       transform: scale(.98);
+
     }
 
-    #result {
-      margin-top: 18px;
 
-      font-size: 56px;
-      line-height: 1;
-      font-weight: 800;
+    .filename {
+
+      display: block;
+
+      margin-top: 5px;
+
+      color: #888;
+
+      font-size: 12px;
+
+      font-weight: 400;
+
     }
 
-    #message {
-      margin-top: 10px;
 
-      height: 24px;
+    .message {
 
-      color: #666;
-      font-size: 14px;
+      text-align: center;
+
+      color: #777;
+
+      padding: 30px 0;
+
     }
+
   </style>
+
 </head>
+
 
 <body>
 
+
   <div class="app">
 
-    <div class="wheel-area">
 
-      <div class="pointer"></div>
+    <h1>
+      spg-ai
+    </h1>
 
-      <div class="wheel" id="wheel">
 
-        <div class="half one">
-          1
-        </div>
+    <div class="subtitle">
+      スマホで作るゲームツール
+    </div>
 
-        <div class="half two">
-          2
-        </div>
 
-        <div class="hub"></div>
+    <div id="games">
 
+      <div class="message">
+        ゲーム一覧を読み込んでいます…
       </div>
 
     </div>
 
-    <button id="spinButton">
-      回す
-    </button>
-
-    <div id="result">
-      -
-    </div>
-
-    <div id="message">
-      ボタンを押すとルーレットが回ります
-    </div>
 
   </div>
 
 
   <script>
 
-    const wheel =
-      document.getElementById("wheel");
 
-    const button =
-      document.getElementById("spinButton");
-
-    const result =
-      document.getElementById("result");
-
-    const message =
-      document.getElementById("message");
+    const games =
+      document.getElementById("games");
 
 
-    let angle = 0;
-
-    let spinning = false;
-
-
-    button.addEventListener("click", function () {
-
-      if (spinning) {
-        return;
-      }
+    const repository =
+      "m0n0c01/spg-ai";
 
 
-      spinning = true;
-
-      button.textContent = "回転中";
-
-      result.textContent = "…";
-
-      message.textContent = "回転しています";
+    const apiURL =
+      "https://api.github.com/repos/"
+      + repository
+      + "/contents/";
 
 
-      // 4〜7回転
-      const turns =
-        4 + Math.floor(Math.random() * 4);
+    fetch(apiURL)
 
 
-      // 最後の停止角度
-      const randomAngle =
-        Math.floor(Math.random() * 360);
+      .then(function(response) {
+
+        if (!response.ok) {
+
+          throw new Error(
+            "GitHub API error"
+          );
+
+        }
+
+        return response.json();
+
+      })
 
 
-      angle +=
-        turns * 360 +
-        randomAngle;
+      .then(function(files) {
 
 
-      wheel.style.transform =
-        "rotate(" + angle + "deg)";
-
-    });
+        games.innerHTML = "";
 
 
-    wheel.addEventListener(
-      "transitionend",
-      function () {
+        const htmlFiles =
+          files.filter(function(file) {
 
-        const normalized =
-          ((270 - angle) % 360 + 360) % 360;
+            return (
+              file.type === "file" &&
+              file.name.toLowerCase().endsWith(".html") &&
+              file.name.toLowerCase() !== "index.html"
+            );
+
+          });
 
 
-        let value;
+        if (htmlFiles.length === 0) {
 
+          games.innerHTML =
+            '<div class="message">' +
+            'まだゲームがありません' +
+            '</div>';
 
-        if (normalized > 180) {
-          value = 1;
-        } else {
-          value = 2;
+          return;
+
         }
 
 
-        result.textContent =
-          value;
+        htmlFiles.forEach(function(file) {
 
-        message.textContent =
-          "停止";
 
-        button.textContent =
-          "回す";
+          const link =
+            document.createElement("a");
 
-        spinning = false;
 
-      }
-    );
+          link.className =
+            "game";
+
+
+          link.href =
+            "./" + encodeURIComponent(file.name);
+
+
+          /*
+           * ファイル名から拡張子を取り除いて
+           * メニューに表示する。
+           */
+          const title =
+            file.name.replace(
+              /\.html$/i,
+              ""
+            );
+
+
+          link.textContent =
+            title;
+
+
+          const filename =
+            document.createElement("span");
+
+
+          filename.className =
+            "filename";
+
+
+          filename.textContent =
+            file.name;
+
+
+          link.appendChild(filename);
+
+
+          games.appendChild(link);
+
+        });
+
+
+      })
+
+
+      .catch(function(error) {
+
+
+        console.error(error);
+
+
+        games.innerHTML =
+
+          '<div class="message">' +
+
+          'ゲーム一覧を取得できませんでした。' +
+
+          '<br><br>' +
+
+          'ページを再読み込みしてください。' +
+
+          '</div>';
+
+      });
+
 
   </script>
 
+
 </body>
+
 </html>
