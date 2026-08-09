@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>ルーレット 1〜10</title>
+
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+
+body {
+
+  margin: 0;
+
+  min-height: 100svh;
+
+  background: #eeeeee;
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Hiragino Sans",
+    "Yu Gothic",
+    sans-serif;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  touch-action: manipulation;
+
+}
+
+
+.app {
+
+  width: min(92vw, 420px);
+
+  text-align: center;
+
+}
+
+
+.wheel-area {
+
+  position: relative;
+
+  width: min(82vw, 340px);
+
+  height: min(82vw, 340px);
+
+  margin: 0 auto;
+
+}
+
+
+.pointer {
+
+  position: absolute;
+
+  z-index: 5;
+
+  left: 50%;
+
+  top: -5px;
+
+  transform: translateX(-50%);
+
+  width: 0;
+
+  height: 0;
+
+  border-left: 17px solid transparent;
+
+  border-right: 17px solid transparent;
+
+  border-top: 32px solid #e53935;
+
+}
+
+
+.wheel {
+
+  position: relative;
+
+  width: 100%;
+
+  height: 100%;
+
+  border: 6px solid #222;
+
+  border-radius: 50%;
+
+  overflow: hidden;
+
+  background:
+    conic-gradient(
+      #f5d34f 0deg 36deg,
+      #5c8fe8 36deg 72deg,
+      #f5d34f 72deg 108deg,
+      #5c8fe8 108deg 144deg,
+      #f5d34f 144deg 180deg,
+      #5c8fe8 180deg 216deg,
+      #f5d34f 216deg 252deg,
+      #5c8fe8 252deg 288deg,
+      #f5d34f 288deg 324deg,
+      #5c8fe8 324deg 360deg
+    );
+
+  transform: rotate(0deg);
+
+}
+
+
+.number {
+
+  position: absolute;
+
+  width: 50px;
+
+  height: 50px;
+
+  left: 50%;
+
+  top: 50%;
+
+  margin-left: -25px;
+
+  margin-top: -25px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 28px;
+
+  font-weight: 800;
+
+  color: #222;
+
+}
+
+
+.hub {
+
+  position: absolute;
+
+  z-index: 3;
+
+  left: 50%;
+
+  top: 50%;
+
+  width: 34px;
+
+  height: 34px;
+
+  transform:
+    translate(-50%, -50%);
+
+  border-radius: 50%;
+
+  background: #222;
+
+  border: 5px solid white;
+
+}
+
+
+button {
+
+  width: 100%;
+
+  height: 60px;
+
+  margin-top: 24px;
+
+  border: 0;
+
+  border-radius: 14px;
+
+  background: #222;
+
+  color: white;
+
+  font-size: 20px;
+
+  font-weight: 700;
+
+}
+
+
+button:active {
+
+  transform: scale(.98);
+
+}
+
+
+button:disabled {
+
+  opacity: .6;
+
+}
+
+
+#result {
+
+  margin-top: 18px;
+
+  font-size: 56px;
+
+  line-height: 1;
+
+  font-weight: 800;
+
+}
+
+
+#message {
+
+  margin-top: 10px;
+
+  min-height: 24px;
+
+  color: #666;
+
+  font-size: 14px;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+  <div class="wheel-area">
+
+
+    <div class="pointer"></div>
+
+
+    <div
+      class="wheel"
+      id="wheel"
+    >
+
+
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(18deg)
+          translateY(-135px)
+          rotate(-18deg);
+        "
+      >
+        1
+      </div>
+
+
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(54deg)
+          translateY(-135px)
+          rotate(-54deg);
+        "
+      >
+        2
+      </div>
+
+
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(90deg)
+          translateY(-135px)
+          rotate(-90deg);
+        "
+      >
+        3
+      </div>
+
+
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(126deg)
+          translateY(-135px)
+          rotate(-126deg);
+        "
+      >
+        4
+      </div>
+
+
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(162deg)
+          translateY(-135px)
+          rotate(-162deg);
+        "
+      >
+        5
+      </div>
+
+
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(198deg)
+          translateY(-135px)
+          rotate(-198deg);
+        "
+      >
+        6
+      </div>
+
+
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(234deg)
+          translateY(-135px)
+          rotate(-234deg);
+        "
+      >
+        7
+      </div>
+
+
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(270deg)
+          translateY(-135px)
+          rotate(-270deg);
+        "
+      >
+        8
+      </div>
+
+
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(306deg)
+          translateY(-135px)
+          rotate(-306deg);
+        "
+      >
+        9
+      </div>
+
+
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(342deg)
+          translateY(-135px)
+          rotate(-342deg);
+        "
+      >
+        10
+      </div>
+
+
+      <div class="hub"></div>
+
+
+    </div>
+
+
+  </div>
+
+
+  <button id="spinButton">
+    回す
+  </button>
+
+
+  <div id="result">
+    -
+  </div>
+
+
+  <div id="message">
+    1〜10
+  </div>
+
+
+</div>
+
+
+<script>
+
+
+const wheel =
+  document.getElementById(
+    "wheel"
+  );
+
+
+const button =
+  document.getElementById(
+    "spinButton"
+  );
+
+
+const result =
+  document.getElementById(
+    "result"
+  );
+
+
+const message =
+  document.getElementById(
+    "message"
+  );
+
+
+let angle = 0;
+
+let speed = 0;
+
+let spinning = false;
+
+let lastTime = 0;
+
+
+/*
+ * 初速
+ *
+ * 3段階
+ */
+
+const START_SPEEDS = [
+
+  18,
+  25,
+  34
+
+];
+
+
+/*
+ * 通常の減速度
+ *
+ * 小さいほど早く止まる。
+ */
+
+const DECELERATIONS = [
+
+  0.965,
+  0.975,
+  0.985
+
+];
+
+
+/*
+ * 回転中の現在の減速度
+ */
+
+let currentDeceleration = 0.975;
+
+
+/*
+ * 今回すでに
+ * 特殊タップを使ったか
+ */
+
+let slowdownUsed = false;
+
+
+/*
+ * ルーレットを回す
+ */
+
+function spin() {
+
+
+  if (spinning) {
+
+    return;
+
+  }
+
+
+  spinning = true;
+
+
+  slowdownUsed = false;
+
+
+  button.disabled = true;
+
+  button.textContent =
+    "回転中";
+
+
+  result.textContent =
+    "…";
+
+
+  message.textContent =
+    "回転中にもう一度タップできます";
+
+
+  /*
+   * 初速をランダム選択
+   */
+
+  const speedIndex =
+    Math.floor(
+      Math.random()
+      * START_SPEEDS.length
+    );
+
+
+  /*
+   * 減速度をランダム選択
+   */
+
+  const decelerationIndex =
+    Math.floor(
+      Math.random()
+      * DECELERATIONS.length
+    );
+
+
+  speed =
+    START_SPEEDS[
+      speedIndex
+    ];
+
+
+  currentDeceleration =
+    DECELERATIONS[
+      decelerationIndex
+    ];
+
+
+  lastTime =
+    performance.now();
+
+
+  requestAnimationFrame(
+    animate
+  );
+
+}
+
+
+/*
+ * アニメーション
+ */
+
+function animate(time) {
+
+
+  const delta =
+    Math.min(
+      time - lastTime,
+      40
+    );
+
+
+  lastTime =
+    time;
+
+
+  const frame =
+    delta / 16.6667;
+
+
+  /*
+   * 時計回り
+   */
+
+  angle +=
+    speed * frame;
+
+
+  wheel.style.transform =
+    "rotate("
+    + angle
+    + "deg)";
+
+
+  /*
+   * 現在の減速度で減速
+   */
+
+  speed *=
+    Math.pow(
+      currentDeceleration,
+      frame
+    );
+
+
+  /*
+   * 十分遅くなったら停止
+   */
+
+  if (
+    speed < 0.05
+  ) {
+
+    stop();
+
+    return;
+
+  }
+
+
+  requestAnimationFrame(
+    animate
+  );
+
+}
+
+
+/*
+ * 回転中のタップ
+ *
+ * 画面のどこをタップしてもOK。
+ */
+
+document.addEventListener(
+  "click",
+  function(event) {
+
+
+    /*
+     * 回転中でなければ無視
+     */
+
+    if (!spinning) {
+
+      return;
+
+    }
+
+
+    /*
+     * 「回す」ボタン自身を
+     * 押した場合も無視。
+     *
+     * 実際にはbuttonがdisabledなので
+     * 基本的には発生しない。
+     */
+
+    if (
+      event.target === button
+    ) {
+
+      return;
+
+    }
+
+
+    /*
+     * 一度使ったら終了。
+     */
+
+    if (slowdownUsed) {
+
+      return;
+
+    }
+
+
+    slowdownUsed = true;
+
+
+    /*
+     * 減速度を一段階弱くする。
+     *
+     * 0.965 → 0.975
+     * 0.975 → 0.985
+     * 0.985 → 0.995
+     */
+
+    currentDeceleration =
+      Math.min(
+        currentDeceleration + 0.01,
+        0.995
+      );
+
+
+    message.textContent =
+      "減速が弱まりました！";
+
+
+  }
+);
+
+
+/*
+ * 停止処理
+ */
+
+function stop() {
+
+
+  speed = 0;
+
+  spinning = false;
+
+
+  const normalized =
+    (
+      angle % 360
+      + 360
+    ) % 360;
+
+
+  const pointerAngle =
+    (
+      360
+      - normalized
+      + 18
+    ) % 360;
+
+
+  const value =
+    Math.floor(
+      pointerAngle / 36
+    ) + 1;
+
+
+  result.textContent =
+    value;
+
+
+  message.textContent =
+    slowdownUsed
+      ? "停止（減速操作使用済み）"
+      : "停止";
+
+
+  button.textContent =
+    "回す";
+
+
+  button.disabled =
+    false;
+
+}
+
+
+/*
+ * 「回す」ボタン
+ */
+
+button.addEventListener(
+  "click",
+  spin
+);
+
+
+</script>
+
+
+</body>
+
+</html>
