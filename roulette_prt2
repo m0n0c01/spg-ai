@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>ルーレット 2</title>
+
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+
+    body {
+
+      margin: 0;
+
+      min-height: 100svh;
+
+      background: #eeeeee;
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Hiragino Sans",
+        "Yu Gothic",
+        sans-serif;
+
+      display: flex;
+
+      justify-content: center;
+
+      align-items: center;
+
+      touch-action: manipulation;
+
+    }
+
+
+    .app {
+
+      width: min(92vw, 420px);
+
+      text-align: center;
+
+    }
+
+
+    .wheel-area {
+
+      position: relative;
+
+      width: min(82vw, 340px);
+
+      height: min(82vw, 340px);
+
+      margin: 0 auto;
+
+    }
+
+
+    .pointer {
+
+      position: absolute;
+
+      z-index: 5;
+
+      left: 50%;
+
+      top: -5px;
+
+      transform: translateX(-50%);
+
+      width: 0;
+
+      height: 0;
+
+      border-left: 17px solid transparent;
+
+      border-right: 17px solid transparent;
+
+      border-top: 32px solid #e53935;
+
+    }
+
+
+    .wheel {
+
+      position: relative;
+
+      width: 100%;
+
+      height: 100%;
+
+      border: 6px solid #222;
+
+      border-radius: 50%;
+
+      overflow: hidden;
+
+      background: #f5d34f;
+
+      /*
+       * JavaScriptで直接回転させるので、
+       * CSS transitionは使わない。
+       */
+
+      transform: rotate(0deg);
+
+    }
+
+
+    .half {
+
+      position: absolute;
+
+      left: 0;
+
+      width: 100%;
+
+      height: 50%;
+
+      display: flex;
+
+      justify-content: center;
+
+      align-items: center;
+
+      font-size: clamp(54px, 18vw, 82px);
+
+      font-weight: 800;
+
+    }
+
+
+    .one {
+
+      top: 0;
+
+      background: #f5d34f;
+
+      color: #222;
+
+    }
+
+
+    .two {
+
+      bottom: 0;
+
+      background: #5c8fe8;
+
+      color: white;
+
+    }
+
+
+    .hub {
+
+      position: absolute;
+
+      z-index: 3;
+
+      left: 50%;
+
+      top: 50%;
+
+      width: 34px;
+
+      height: 34px;
+
+      transform: translate(-50%, -50%);
+
+      border-radius: 50%;
+
+      background: #222;
+
+      border: 5px solid white;
+
+    }
+
+
+    button {
+
+      width: 100%;
+
+      height: 60px;
+
+      margin-top: 24px;
+
+      border: 0;
+
+      border-radius: 14px;
+
+      background: #222;
+
+      color: white;
+
+      font-size: 20px;
+
+      font-weight: 700;
+
+    }
+
+
+    button:active {
+
+      transform: scale(.98);
+
+    }
+
+
+    button:disabled {
+
+      opacity: .6;
+
+    }
+
+
+    #result {
+
+      margin-top: 18px;
+
+      font-size: 56px;
+
+      line-height: 1;
+
+      font-weight: 800;
+
+    }
+
+
+    #message {
+
+      margin-top: 10px;
+
+      height: 24px;
+
+      color: #666;
+
+      font-size: 14px;
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <div class="app">
+
+
+    <div class="wheel-area">
+
+
+      <div class="pointer"></div>
+
+
+      <div
+        class="wheel"
+        id="wheel"
+      >
+
+        <div class="half one">
+          1
+        </div>
+
+
+        <div class="half two">
+          2
+        </div>
+
+
+        <div class="hub"></div>
+
+      </div>
+
+    </div>
+
+
+    <button id="spinButton">
+      回す
+    </button>
+
+
+    <div id="result">
+      -
+    </div>
+
+
+    <div id="message">
+      ボタンを押すと回ります
+    </div>
+
+
+  </div>
+
+
+  <script>
+
+
+    const wheel =
+      document.getElementById("wheel");
+
+
+    const button =
+      document.getElementById("spinButton");
+
+
+    const result =
+      document.getElementById("result");
+
+
+    const message =
+      document.getElementById("message");
+
+
+    let angle = 0;
+
+    let speed = 0;
+
+    let spinning = false;
+
+    let lastTime = 0;
+
+
+    /*
+     * 減速率。
+     *
+     * 1.0 なら減速しない。
+     * 0.98なら、毎フレーム少しずつ減速。
+     *
+     * 今回は「一定割合で減速」する方式。
+     */
+
+    const DECELERATION = 0.985;
+
+
+    function spin() {
+
+
+      if (spinning) {
+
+        return;
+
+      }
+
+
+      spinning = true;
+
+
+      button.disabled = true;
+
+      button.textContent =
+        "回転中";
+
+
+      result.textContent =
+        "…";
+
+
+      message.textContent =
+        "速度はランダムです";
+
+
+      /*
+       * 初速をランダムにする。
+       *
+       * 0.45〜0.75度/frame
+       */
+
+      speed =
+        0.45 +
+        Math.random() * 0.30;
+
+
+      /*
+       * 回転方向もランダム。
+       */
+
+      if (Math.random() < 0.5) {
+
+        speed *= -1;
+
+      }
+
+
+      lastTime =
+        performance.now();
+
+
+      requestAnimationFrame(
+        animate
+      );
+
+    }
+
+
+    function animate(time) {
+
+
+      const delta =
+        Math.min(
+          time - lastTime,
+          40
+        );
+
+
+      lastTime = time;
+
+
+      /*
+       * 60fpsを基準にして、
+       * フレームレートが変わっても
+       * なるべく同じ動きになるようにする。
+       */
+
+      const frame =
+        delta / 16.6667;
+
+
+      angle +=
+        speed * frame;
+
+
+      wheel.style.transform =
+        "rotate(" +
+        angle +
+        "deg)";
+
+
+      /*
+       * 一定割合で減速。
+       */
+
+      speed *=
+        Math.pow(
+          DECELERATION,
+          frame
+        );
+
+
+      /*
+       * 十分遅くなったら停止。
+       */
+
+      if (
+        Math.abs(speed) < 0.01
+      ) {
+
+        stop();
+
+        return;
+
+      }
+
+
+      requestAnimationFrame(
+        animate
+      );
+
+    }
+
+
+    function stop() {
+
+
+      speed = 0;
+
+      spinning = false;
+
+
+      /*
+       * 0〜360度に正規化。
+       */
+
+      const normalized =
+        (
+          angle % 360 + 360
+        ) % 360;
+
+
+      /*
+       * 指針は上。
+       *
+       * 上半分が1、
+       * 下半分が2。
+       */
+
+      const pointerAngle =
+        (
+          360 - normalized
+        ) % 360;
+
+
+      let value;
+
+
+      if (
+        pointerAngle < 180
+      ) {
+
+        value = 1;
+
+      } else {
+
+        value = 2;
+
+      }
+
+
+      result.textContent =
+        value;
+
+
+      message.textContent =
+        "停止";
+
+
+      button.textContent =
+        "回す";
+
+
+      button.disabled =
+        false;
+
+    }
+
+
+    button.addEventListener(
+      "click",
+      spin
+    );
+
+
+  </script>
+
+
+</body>
+
+</html>
