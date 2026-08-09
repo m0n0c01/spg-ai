@@ -3,255 +3,252 @@
 
 <head>
 
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
 
-  <title>ルーレット 2</title>
+<title>ルーレット 1〜10</title>
 
 
-  <style>
+<style>
 
-    * {
-      box-sizing: border-box;
-    }
+* {
+  box-sizing: border-box;
+}
 
 
-    body {
+body {
 
-      margin: 0;
+  margin: 0;
 
-      min-height: 100svh;
+  min-height: 100svh;
 
-      background: #eeeeee;
+  background: #eeeeee;
 
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Hiragino Sans",
-        "Yu Gothic",
-        sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Hiragino Sans",
+    "Yu Gothic",
+    sans-serif;
 
-      display: flex;
+  display: flex;
 
-      justify-content: center;
+  justify-content: center;
 
-      align-items: center;
+  align-items: center;
 
-      touch-action: manipulation;
+  touch-action: manipulation;
 
-    }
+}
 
 
-    .app {
+.app {
 
-      width: min(92vw, 420px);
+  width: min(92vw, 420px);
 
-      text-align: center;
+  text-align: center;
 
-    }
+}
 
 
-    .wheel-area {
+.wheel-area {
 
-      position: relative;
+  position: relative;
 
-      width: min(82vw, 340px);
+  width: min(82vw, 340px);
 
-      height: min(82vw, 340px);
+  height: min(82vw, 340px);
 
-      margin: 0 auto;
+  margin: 0 auto;
 
-    }
+}
 
 
-    .pointer {
+.pointer {
 
-      position: absolute;
+  position: absolute;
 
-      z-index: 5;
+  z-index: 5;
 
-      left: 50%;
+  left: 50%;
 
-      top: -5px;
+  top: -5px;
 
-      transform: translateX(-50%);
+  transform: translateX(-50%);
 
-      width: 0;
+  width: 0;
 
-      height: 0;
+  height: 0;
 
-      border-left: 17px solid transparent;
+  border-left: 17px solid transparent;
 
-      border-right: 17px solid transparent;
+  border-right: 17px solid transparent;
 
-      border-top: 32px solid #e53935;
+  border-top: 32px solid #e53935;
 
-    }
+}
 
 
-    .wheel {
+.wheel {
 
-      position: relative;
+  position: relative;
 
-      width: 100%;
+  width: 100%;
 
-      height: 100%;
+  height: 100%;
 
-      border: 6px solid #222;
+  border: 6px solid #222;
 
-      border-radius: 50%;
+  border-radius: 50%;
 
-      overflow: hidden;
+  overflow: hidden;
 
-      background: #f5d34f;
+  background:
+    conic-gradient(
+      #f5d34f 0deg 36deg,
+      #5c8fe8 36deg 72deg,
+      #f5d34f 72deg 108deg,
+      #5c8fe8 108deg 144deg,
+      #f5d34f 144deg 180deg,
+      #5c8fe8 180deg 216deg,
+      #f5d34f 216deg 252deg,
+      #5c8fe8 252deg 288deg,
+      #f5d34f 288deg 324deg,
+      #5c8fe8 324deg 360deg
+    );
 
-      /*
-       * JavaScriptで直接回転させるので、
-       * CSS transitionは使わない。
-       */
+  transform: rotate(0deg);
 
-      transform: rotate(0deg);
+}
 
-    }
 
+.number {
 
-    .half {
+  position: absolute;
 
-      position: absolute;
+  width: 50px;
 
-      left: 0;
+  height: 50px;
 
-      width: 100%;
+  left: 50%;
 
-      height: 50%;
+  top: 50%;
 
-      display: flex;
+  margin-left: -25px;
 
-      justify-content: center;
+  margin-top: -25px;
 
-      align-items: center;
+  display: flex;
 
-      font-size: clamp(54px, 18vw, 82px);
+  align-items: center;
 
-      font-weight: 800;
+  justify-content: center;
 
-    }
+  font-size: 28px;
 
+  font-weight: 800;
 
-    .one {
+  color: #222;
 
-      top: 0;
+  transform-origin:
+    25px 25px;
 
-      background: #f5d34f;
+}
 
-      color: #222;
 
-    }
+.hub {
 
+  position: absolute;
 
-    .two {
+  z-index: 3;
 
-      bottom: 0;
+  left: 50%;
 
-      background: #5c8fe8;
+  top: 50%;
 
-      color: white;
+  width: 34px;
 
-    }
+  height: 34px;
 
+  transform:
+    translate(-50%, -50%);
 
-    .hub {
+  border-radius: 50%;
 
-      position: absolute;
+  background: #222;
 
-      z-index: 3;
+  border: 5px solid white;
 
-      left: 50%;
+}
 
-      top: 50%;
 
-      width: 34px;
+button {
 
-      height: 34px;
+  width: 100%;
 
-      transform: translate(-50%, -50%);
+  height: 60px;
 
-      border-radius: 50%;
+  margin-top: 24px;
 
-      background: #222;
+  border: 0;
 
-      border: 5px solid white;
+  border-radius: 14px;
 
-    }
+  background: #222;
 
+  color: white;
 
-    button {
+  font-size: 20px;
 
-      width: 100%;
+  font-weight: 700;
 
-      height: 60px;
+}
 
-      margin-top: 24px;
 
-      border: 0;
+button:active {
 
-      border-radius: 14px;
+  transform: scale(.98);
 
-      background: #222;
+}
 
-      color: white;
 
-      font-size: 20px;
+button:disabled {
 
-      font-weight: 700;
+  opacity: .6;
 
-    }
+}
 
 
-    button:active {
+#result {
 
-      transform: scale(.98);
+  margin-top: 18px;
 
-    }
+  font-size: 56px;
 
+  line-height: 1;
 
-    button:disabled {
+  font-weight: 800;
 
-      opacity: .6;
+}
 
-    }
 
+#message {
 
-    #result {
+  margin-top: 10px;
 
-      margin-top: 18px;
+  height: 24px;
 
-      font-size: 56px;
+  color: #666;
 
-      line-height: 1;
+  font-size: 14px;
 
-      font-weight: 800;
+}
 
-    }
-
-
-    #message {
-
-      margin-top: 10px;
-
-      height: 24px;
-
-      color: #666;
-
-      font-size: 14px;
-
-    }
-
-  </style>
+</style>
 
 </head>
 
@@ -259,293 +256,473 @@
 <body>
 
 
-  <div class="app">
+<div class="app">
 
 
-    <div class="wheel-area">
+  <div class="wheel-area">
 
 
-      <div class="pointer"></div>
+    <div class="pointer"></div>
+
+
+    <div
+      class="wheel"
+      id="wheel"
+    >
 
 
       <div
-        class="wheel"
-        id="wheel"
+        class="number"
+        style="
+          transform:
+          rotate(18deg)
+          translateY(-135px)
+          rotate(-18deg);
+        "
       >
-
-        <div class="half one">
-          1
-        </div>
-
-
-        <div class="half two">
-          2
-        </div>
-
-
-        <div class="hub"></div>
-
+        1
       </div>
 
-    </div>
+
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(54deg)
+          translateY(-135px)
+          rotate(-54deg);
+        "
+      >
+        2
+      </div>
 
 
-    <button id="spinButton">
-      回す
-    </button>
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(90deg)
+          translateY(-135px)
+          rotate(-90deg);
+        "
+      >
+        3
+      </div>
 
 
-    <div id="result">
-      -
-    </div>
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(126deg)
+          translateY(-135px)
+          rotate(-126deg);
+        "
+      >
+        4
+      </div>
 
 
-    <div id="message">
-      ボタンを押すと回ります
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(162deg)
+          translateY(-135px)
+          rotate(-162deg);
+        "
+      >
+        5
+      </div>
+
+
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(198deg)
+          translateY(-135px)
+          rotate(-198deg);
+        "
+      >
+        6
+      </div>
+
+
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(234deg)
+          translateY(-135px)
+          rotate(-234deg);
+        "
+      >
+        7
+      </div>
+
+
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(270deg)
+          translateY(-135px)
+          rotate(-270deg);
+        "
+      >
+        8
+      </div>
+
+
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(306deg)
+          translateY(-135px)
+          rotate(-306deg);
+        "
+      >
+        9
+      </div>
+
+
+      <div
+        class="number"
+        style="
+          transform:
+          rotate(342deg)
+          translateY(-135px)
+          rotate(-342deg);
+        "
+      >
+        10
+      </div>
+
+
+      <div class="hub"></div>
+
+
     </div>
 
 
   </div>
 
 
-  <script>
+  <button id="spinButton">
+    回す
+  </button>
 
 
-    const wheel =
-      document.getElementById("wheel");
+  <div id="result">
+    -
+  </div>
 
 
-    const button =
-      document.getElementById("spinButton");
+  <div id="message">
+    1〜10
+  </div>
 
 
-    const result =
-      document.getElementById("result");
+</div>
 
 
-    const message =
-      document.getElementById("message");
+<script>
 
 
-    let angle = 0;
+const wheel =
+  document.getElementById(
+    "wheel"
+  );
 
-    let speed = 0;
 
-    let spinning = false;
+const button =
+  document.getElementById(
+    "spinButton"
+  );
 
-    let lastTime = 0;
 
+const result =
+  document.getElementById(
+    "result"
+  );
 
-    /*
-     * 減速率。
-     *
-     * 1.0 なら減速しない。
-     * 0.98なら、毎フレーム少しずつ減速。
-     *
-     * 今回は「一定割合で減速」する方式。
-     */
 
-    const DECELERATION = 0.985;
+const message =
+  document.getElementById(
+    "message"
+  );
 
 
-    function spin() {
+let angle = 0;
 
+let speed = 0;
 
-      if (spinning) {
+let spinning = false;
 
-        return;
+let lastTime = 0;
 
-      }
 
+/*
+ * 初速：3段階
+ *
+ * 単位：度 / フレーム
+ *
+ * それぞれ十分な回転数になるよう
+ * 前回よりかなり大きくしている。
+ */
 
-      spinning = true;
+const START_SPEEDS = [
 
+  18,
 
-      button.disabled = true;
+  25,
 
-      button.textContent =
-        "回転中";
+  34
 
+];
 
-      result.textContent =
-        "…";
 
+/*
+ * 減速度：3段階
+ *
+ * 1フレームごとに速度へ掛ける値。
+ *
+ * 小さいほど早く止まる。
+ */
 
-      message.textContent =
-        "速度はランダムです";
+const DECELERATIONS = [
 
+  0.965,
 
-      /*
-       * 初速をランダムにする。
-       *
-       * 0.45〜0.75度/frame
-       */
+  0.975,
 
-      speed =
-        0.45 +
-        Math.random() * 0.30;
+  0.985
 
+];
 
-      /*
-       * 回転方向もランダム。
-       */
 
-      if (Math.random() < 0.5) {
+function spin() {
 
-        speed *= -1;
 
-      }
+  if (spinning) {
 
+    return;
 
-      lastTime =
-        performance.now();
+  }
 
 
-      requestAnimationFrame(
-        animate
-      );
+  spinning = true;
 
-    }
 
+  button.disabled = true;
 
-    function animate(time) {
+  button.textContent =
+    "回転中";
 
 
-      const delta =
-        Math.min(
-          time - lastTime,
-          40
-        );
+  result.textContent =
+    "…";
 
 
-      lastTime = time;
+  message.textContent =
+    "回転しています";
 
 
-      /*
-       * 60fpsを基準にして、
-       * フレームレートが変わっても
-       * なるべく同じ動きになるようにする。
-       */
+  /*
+   * 初速を3種類から選択
+   */
 
-      const frame =
-        delta / 16.6667;
-
-
-      angle +=
-        speed * frame;
-
-
-      wheel.style.transform =
-        "rotate(" +
-        angle +
-        "deg)";
-
-
-      /*
-       * 一定割合で減速。
-       */
-
-      speed *=
-        Math.pow(
-          DECELERATION,
-          frame
-        );
-
-
-      /*
-       * 十分遅くなったら停止。
-       */
-
-      if (
-        Math.abs(speed) < 0.01
-      ) {
-
-        stop();
-
-        return;
-
-      }
-
-
-      requestAnimationFrame(
-        animate
-      );
-
-    }
-
-
-    function stop() {
-
-
-      speed = 0;
-
-      spinning = false;
-
-
-      /*
-       * 0〜360度に正規化。
-       */
-
-      const normalized =
-        (
-          angle % 360 + 360
-        ) % 360;
-
-
-      /*
-       * 指針は上。
-       *
-       * 上半分が1、
-       * 下半分が2。
-       */
-
-      const pointerAngle =
-        (
-          360 - normalized
-        ) % 360;
-
-
-      let value;
-
-
-      if (
-        pointerAngle < 180
-      ) {
-
-        value = 1;
-
-      } else {
-
-        value = 2;
-
-      }
-
-
-      result.textContent =
-        value;
-
-
-      message.textContent =
-        "停止";
-
-
-      button.textContent =
-        "回す";
-
-
-      button.disabled =
-        false;
-
-    }
-
-
-    button.addEventListener(
-      "click",
-      spin
+  const speedIndex =
+    Math.floor(
+      Math.random()
+      * START_SPEEDS.length
     );
 
 
-  </script>
+  /*
+   * 減速度を3種類から選択
+   */
+
+  const decelerationIndex =
+    Math.floor(
+      Math.random()
+      * DECELERATIONS.length
+    );
+
+
+  speed =
+    START_SPEEDS[
+      speedIndex
+    ];
+
+
+  const deceleration =
+    DECELERATIONS[
+      decelerationIndex
+    ];
+
+
+  /*
+   * 選ばれた設定を保存
+   */
+
+  currentDeceleration =
+    deceleration;
+
+
+  lastTime =
+    performance.now();
+
+
+  requestAnimationFrame(
+    animate
+  );
+
+}
+
+
+let currentDeceleration =
+  0.975;
+
+
+function animate(time) {
+
+
+  const delta =
+    Math.min(
+      time - lastTime,
+      40
+    );
+
+
+  lastTime =
+    time;
+
+
+  const frame =
+    delta / 16.6667;
+
+
+  /*
+   * 時計回りに回転
+   */
+
+  angle +=
+    speed * frame;
+
+
+  wheel.style.transform =
+    "rotate("
+    + angle
+    + "deg)";
+
+
+  /*
+   * 一定割合で減速
+   */
+
+  speed *=
+    Math.pow(
+      currentDeceleration,
+      frame
+    );
+
+
+  /*
+   * 十分遅くなったら停止
+   */
+
+  if (
+    speed < 0.05
+  ) {
+
+    stop();
+
+    return;
+
+  }
+
+
+  requestAnimationFrame(
+    animate
+  );
+
+}
+
+
+function stop() {
+
+
+  speed = 0;
+
+  spinning = false;
+
+
+  /*
+   * 現在の角度を
+   * 0〜360度へ変換
+   */
+
+  const normalized =
+    (
+      angle % 360
+      + 360
+    ) % 360;
+
+
+  /*
+   * 指針は12時方向。
+   *
+   * 各数字は36度ずつ。
+   */
+
+  const pointerAngle =
+    (
+      360
+      - normalized
+      + 18
+    ) % 360;
+
+
+  /*
+   * 0〜35度 → 1
+   * 36〜71度 → 2
+   * ...
+   */
+
+  const value =
+    Math.floor(
+      pointerAngle / 36
+    ) + 1;
+
+
+  result.textContent =
+    value;
+
+
+  message.textContent =
+    "停止";
+
+
+  button.textContent =
+    "回す";
+
+
+  button.disabled =
+    false;
+
+}
+
+
+button.addEventListener(
+  "click",
+  spin
+);
+
+
+</script>
 
 
 </body>
