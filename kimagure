@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>気まぐれルーレット</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f3f4f6;
+    color: #222;
+    text-align: center;
+}
+
+h1 {
+    margin: 5px 0 18px;
+    font-size: 26px;
+}
+
+.container {
+    max-width: 520px;
+    margin: auto;
+}
+
+.inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.item-row {
+    display: flex;
+    gap: 6px;
+}
+
+.item-row input {
+    flex: 1;
+    min-width: 0;
+    padding: 11px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.remove-btn {
+    width: 42px;
+    border: none;
+    border-radius: 8px;
+    background: #ddd;
+    font-size: 18px;
+}
+
+button {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.add-btn {
+    background: #e5e7eb;
+    margin-bottom: 18px;
+}
+
+.spin-btn {
+    width: 100%;
+    background: #2563eb;
+    color: white;
+    font-size: 20px;
+    padding: 15px;
+}
+
+.spin-btn:disabled {
+    background: #9ca3af;
+}
+
+.roulette-area {
+    position: relative;
+    width: min(90vw, 420px);
+    aspect-ratio: 1;
+    margin: 15px auto 20px;
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.pointer {
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 18px solid transparent;
+    border-right: 18px solid transparent;
+    border-top: 35px solid #dc2626;
+    z-index: 10;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,.3));
+}
+
+.result {
+    min-height: 45px;
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.status {
+    min-height: 24px;
+    font-size: 14px;
+    color: #666;
+}
+
+.speed-bar {
+    height: 10px;
+    width: 100%;
+    max-width: 420px;
+    margin: 10px auto;
+    background: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.speed-level {
+    height: 100%;
+    width: 0%;
+    background: #2563eb;
+    transition: width .15s linear;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🎰 気まぐれルーレット</h1>
+
+<div class="inputs" id="inputs"></div>
+
+<button class="add-btn" id="addBtn">＋ 項目を追加</button>
+
+<div class="roulette-area">
+    <div class="pointer"></div>
+    <canvas id="roulette"></canvas>
+</div>
+
+<div class="speed-bar">
+    <div class="speed-level" id="speedLevel"></div>
+</div>
+
+<div class="status" id="status">
+    項目を3～10個入力してください
+</div>
+
+<button class="spin-btn" id="spinBtn">
+    回す！
+</button>
+
+<div class="result" id="result"></div>
+
+</div>
+
+<script>
+
+const canvas = document.getElementById("roulette");
+const ctx = canvas.getContext("2d");
+
+const inputs = document.getElementById("inputs");
+const addBtn = document.getElementById("addBtn");
+const spinBtn = document.getElementById("spinBtn");
+
+const result = document.getElementById("result");
+const status = document.getElementById("status");
+const speedLevel = document.getElementById("speedLevel");
+
+let itemCount = 3;
+
+let rotation = 0;
+let spinning = false;
+
+let animationId = null;
+
+// 現在の速度レベル
+let currentSpeedLevel = 5;
+
+// 最大速度レベル
+const MAX_SPEED_LEVEL = 10;
+
+// 最低速度レベル
+const MIN_SPEED_LEVEL = 1;
+
+
+// --------------------------------------------------
+// 入力欄
+// --------------------------------------------------
+
+function createInputs() {
+
+    inputs.innerHTML = "";
+
+    for (let i = 0; i < itemCount; i++) {
+
+        const row = document.createElement("div");
+        row.className = "item-row";
+
+        const input = document.createElement("input");
+
+        input.type = "text";
+        input.placeholder = `項目 ${i + 1}`;
+        input.value = `項目 ${i + 1}`;
+
+        row.appendChild(input);
+
+        if (itemCount > 3) {
+
+            const remove = document.createElement("button");
+
+            remove.className = "remove-btn";
+            remove.textContent = "×";
+
+            remove.onclick = () => {
+
+                if (itemCount > 3) {
+                    itemCount--;
+                    createInputs();
+                    drawRoulette();
+                }
+
+            };
+
+            row.appendChild(remove);
+        }
+
+        inputs.appendChild(row);
+    }
+
+    addBtn.disabled = itemCount >= 10;
+
+    if (itemCount >= 10) {
+        addBtn.textContent = "最大10個";
+    } else {
+        addBtn.textContent = "＋ 項目を追加";
+    }
+}
+
+
+addBtn.onclick = () => {
+
+    if (itemCount < 10) {
+
+        itemCount++;
+
+        createInputs();
+        drawRoulette();
+    }
+};
+
+
+// --------------------------------------------------
+// Canvasサイズ
+// --------------------------------------------------
+
+function resizeCanvas() {
+
+    const size = Math.min(
+        window.innerWidth * 0.9,
+        420
+    );
+
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
+
+    canvas.style.width = size + "px";
+    canvas.style.height = size + "px";
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+
+// --------------------------------------------------
+// ルーレット描画
+// --------------------------------------------------
+
+function drawRoulette() {
+
+    const size = canvas.clientWidth;
+
+    const center = size / 2;
+    const radius = size * 0.46;
+
+    ctx.clearRect(0, 0, size, size);
+
+    const values = getValues();
+
+    const count = values.length;
+
+    const sector = Math.PI * 2 / count;
+
+    for (let i = 0; i < count; i++) {
+
+        const start =
+            rotation - Math.PI / 2 + i * sector;
+
+        const end = start + sector;
+
+        // 色を周期的に変える
+        const hue = (i * 360 / count + 10) % 360;
+
+        ctx.beginPath();
+
+        ctx.moveTo(center, center);
+
+        ctx.arc(
+            center,
+            center,
+            radius,
+            start,
+            end
+        );
+
+        ctx.closePath();
+
+        ctx.fillStyle =
+            `hsl(${hue}, 75%, 62%)`;
+
+        ctx.fill();
+
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+
+        ctx.stroke();
+
+
+        // 文字
+        ctx.save();
+
+        ctx.translate(center, center);
+
+        const textAngle =
+            rotation -
+            Math.PI / 2 +
+            (i + 0.5) * sector;
+
+        ctx.rotate(textAngle);
+
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+
+        ctx.fillStyle = "#222";
+
+        ctx.font =
+            `bold ${Math.max(13, size * 0.045)}px sans-serif`;
+
+        let text = values[i];
+
+        // 長すぎる文字を切る
+        if (text.length > 12) {
+            text = text.substring(0, 11) + "…";
+        }
+
+        ctx.fillText(
+            text,
+            radius * 0.88,
+            0
+        );
+
+        ctx.restore();
+    }
+
+
+    // 中央円
+    ctx.beginPath();
+
+    ctx.arc(
+        center,
+        center,
+        radius * 0.13,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+}
+
+
+// --------------------------------------------------
+// 値取得
+// --------------------------------------------------
+
+function getValues() {
+
+    const list =
+        [...inputs.querySelectorAll("input")]
+        .map(input => input.value.trim())
+        .filter(value => value !== "");
+
+    return list;
+}
+
+
+// --------------------------------------------------
+// 速度レベル表示
+// --------------------------------------------------
+
+function updateSpeedDisplay() {
+
+    const percent =
+        currentSpeedLevel / MAX_SPEED_LEVEL * 100;
+
+    speedLevel.style.width =
+        percent + "%";
+
+    status.textContent =
+        `速度レベル ${currentSpeedLevel} / ${MAX_SPEED_LEVEL}`;
+}
+
+
+// --------------------------------------------------
+// 速度レベル変更
+// --------------------------------------------------
+
+function changeSpeedLevel() {
+
+    // -1 / 0 / +1
+    const change =
+        Math.floor(Math.random() * 3) - 1;
+
+    currentSpeedLevel += change;
+
+    currentSpeedLevel =
+        Math.max(
+            MIN_SPEED_LEVEL,
+            Math.min(
+                MAX_SPEED_LEVEL,
+                currentSpeedLevel
+            )
+        );
+
+    updateSpeedDisplay();
+}
+
+
+// --------------------------------------------------
+// ルーレット回転
+// --------------------------------------------------
+
+function spin() {
+
+    if (spinning) return;
+
+    const values = getValues();
+
+    if (values.length < 3) {
+        alert("項目は最低3つ必要です。");
+        return;
+    }
+
+    if (values.length > 10) {
+        alert("項目は最大10個です。");
+        return;
+    }
+
+    spinning = true;
+
+    spinBtn.disabled = true;
+
+    result.textContent = "";
+
+    currentSpeedLevel = 5;
+
+    updateSpeedDisplay();
+
+
+    const count = values.length;
+
+    const sector =
+        Math.PI * 2 / count;
+
+
+    // ------------------------------------------------
+    // 目標となる停止位置を決める
+    // ------------------------------------------------
+
+    const targetIndex =
+        Math.floor(Math.random() * count);
+
+
+    // 最低回転数
+    const extraRounds =
+        5 + Math.floor(Math.random() * 4);
+
+
+    // 目標位置
+    const targetRotation =
+        rotation +
+        Math.PI * 2 * extraRounds;
+
+
+    /*
+       最終的には targetIndex の中央が
+       上のポインターに来るようにする。
+    */
+
+    const targetOffset =
+        targetIndex * sector +
+        sector / 2;
+
+
+    let finalRotation =
+        targetRotation -
+        targetOffset;
+
+
+    // ------------------------------------------------
+    // アニメーション
+    // ------------------------------------------------
+
+    let lastTime = performance.now();
+
+    let lastSector =
+        Math.floor(
+            normalizeAngle(rotation) / sector
+        );
+
+
+    function animate(now) {
+
+        const dt =
+            Math.min(
+                (now - lastTime) / 1000,
+                0.05
+            );
+
+        lastTime = now;
+
+
+        const remaining =
+            finalRotation - rotation;
+
+
+        // --------------------------------------------
+        // 残り距離によって最終減速
+        // --------------------------------------------
+
+        let progress =
+            1 -
+            remaining /
+            (finalRotation -
+             (rotation - 0.000001));
+
+
+        /*
+           基本速度。
+
+           速度レベルによって
+           回転速度が変わる。
+        */
+
+        let baseSpeed =
+            0.5 +
+            currentSpeedLevel * 0.38;
+
+
+        // 残り距離が少なくなったら強制的に減速
+        if (remaining < Math.PI * 2) {
+
+            baseSpeed *=
+                Math.max(
+                    0.08,
+                    remaining / (Math.PI * 2)
+                );
+        }
+
+
+        // --------------------------------------------
+        // 回転
+        // --------------------------------------------
+
+        rotation += baseSpeed * dt;
+
+
+        // --------------------------------------------
+        // マスをまたいだかチェック
+        // --------------------------------------------
+
+        const newSector =
+            Math.floor(
+                normalizeAngle(rotation) / sector
+            );
+
+
+        if (newSector !== lastSector) {
+
+            lastSector = newSector;
+
+            /*
+             * 1マス進むごとに
+             * 速度をランダムに
+             * 上げる / 下げる / 維持
+             */
+
+            changeSpeedLevel();
+        }
+
+
+        // --------------------------------------------
+        // ゴール
+        // --------------------------------------------
+
+        if (rotation >= finalRotation) {
+
+            rotation = finalRotation;
+
+            drawRoulette();
+
+            finishSpin(
+                values,
+                targetIndex
+            );
+
+            return;
+        }
+
+
+        drawRoulette();
+
+        animationId =
+            requestAnimationFrame(animate);
+    }
+
+
+    animationId =
+        requestAnimationFrame(animate);
+}
+
+
+// --------------------------------------------------
+// 角度を0～2πにする
+// --------------------------------------------------
+
+function normalizeAngle(angle) {
+
+    const full =
+        Math.PI * 2;
+
+    return (
+        (angle % full) +
+        full
+    ) % full;
+}
+
+
+// --------------------------------------------------
+// 終了
+// --------------------------------------------------
+
+function finishSpin(values, index) {
+
+    spinning = false;
+
+    spinBtn.disabled = false;
+
+    speedLevel.style.width = "0%";
+
+    result.textContent =
+        "🎯 " + values[index];
+
+    status.textContent =
+        "停止しました";
+
+    // 軽い演出
+    result.animate(
+        [
+            {
+                transform: "scale(0.7)",
+                opacity: 0
+            },
+            {
+                transform: "scale(1.15)",
+                opacity: 1
+            },
+            {
+                transform: "scale(1)",
+                opacity: 1
+            }
+        ],
+        {
+            duration: 450,
+            easing: "ease-out"
+        }
+    );
+}
+
+
+// --------------------------------------------------
+// 初期化
+// --------------------------------------------------
+
+window.addEventListener(
+    "resize",
+    () => {
+        resizeCanvas();
+        drawRoulette();
+    }
+);
+
+spinBtn.onclick = spin;
+
+createInputs();
+
+resizeCanvas();
+
+drawRoulette();
+
+updateSpeedDisplay();
+
+</script>
+
+</body>
+</html>
